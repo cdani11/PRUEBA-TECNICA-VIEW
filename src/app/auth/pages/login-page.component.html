@@ -1,0 +1,21 @@
+<div class="login-container">
+  <div class="login-box">
+    <h2 class="login-title">Iniciar Sesión</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Usuario</mat-label>
+        <input matInput formControlName="usuario" />
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Clave</mat-label>
+        <input matInput type="password" formControlName="clave" />
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="button" (click)="login()" [disabled]="loginForm.invalid">
+        Iniciar sesión
+      </button>
+    </form>
+  </div>
+</div>

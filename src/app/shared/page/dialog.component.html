@@ -1,0 +1,17 @@
+<mat-dialog-content class="error-dialog">
+  <div class="dialog-header">
+    <mat-icon class="dialog-icon">error_outline</mat-icon>
+    <h2 class="dialog-title">Error</h2>
+  </div>
+
+  <div class="dialog-content">
+    <p>{{ data.message }}</p>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-flat-button color="warn" (click)="cerrar()" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+      Cerrar
+    </button>
+  </div>
+</mat-dialog-content>
