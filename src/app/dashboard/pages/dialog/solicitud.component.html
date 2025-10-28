@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Agregar Solicitud</h2>
+<h2 mat-dialog-title>Agregar Producto</h2>
 <mat-dialog-content class="form-content m-b-10 p-t-10">
   @if(this.habilitarCargando){
 
@@ -13,38 +13,27 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Dirección del Solicitante</mat-label>
-      <input matInput formControlName="direccionSolicitante" />
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width">
       <mat-label>Descripción</mat-label>
       <textarea matInput rows="3" formControlName="descripcion"></textarea>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Fecha de Solicitud</mat-label>
-      <input matInput [matDatepicker]="picker" formControlName="fechaSolicitud">
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Tipo de Compra</mat-label>
-      <mat-select formControlName="tipoCompra">
-        <mat-option *ngFor="let tipo of tiposCompra" [value]="tipo.valor">
+      <mat-label>Categoria</mat-label>
+      <mat-select formControlName="categoria">
+        <mat-option *ngFor="let tipo of categorias" [value]="tipo.valor">
           {{ tipo.descripcion }}
         </mat-option>
       </mat-select>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Estado</mat-label>
-      <mat-select formControlName="estado">
-        <mat-option *ngFor="let est of estados" [value]="est.valor">
-          {{ est.descripcion }}
-        </mat-option>
-      </mat-select>
+      <mat-label>Precio</mat-label>
+      <input matInput type="number" min="0.01" step="0.01" formControlName="precio" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Stock</mat-label>
+      <input matInput type="number" min="1" formControlName="stock" />
     </mat-form-field>
 
   </form>

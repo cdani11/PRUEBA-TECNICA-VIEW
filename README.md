@@ -1,59 +1,49 @@
-# PRUEBATECNICAVIEW
+# Prueba Netby por Carlos Tigrero
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.2.
+Se crea Portal Web Angular bajo cli v19.0.2
 
-## Development server
+## Ejecución
 
-To start a local development server, run:
+Puedes ejecutar la solucion desde VSCode.
 
-```bash
-ng serve
+En VSCode se encuentra el archivo ".vscode/launch.json" ya configurado, puedes ir a la opción **RUN AND DEBUG** y seleccionar **ng serve** de la lista desplegable.
+
+## Inicio de sesión
+
+Puedes iniciar sesion con el usuario **ctigrero** y la contraseña **12345**, este usuario se crea al ejecutar el script de base de datos.
+
+Si deseas crear otro usuario, ve a la tabla Usuarios y crealo tu mismo, la contraseña debe estar encriptada, puedes usar el siguiente fragmento de código para encriptar el valor:
+
+```c#
+public static string CifrarClave(string dataToEncrypt, string password, string salt)
+{
+    using (var aes = Aes.Create())
+    {
+        using (var key = new Rfc2898DeriveBytes(password, Encoding.UTF8.GetBytes(salt), 10000, HashAlgorithmName.SHA256))
+        {
+            aes.Key = key.GetBytes(32); // AES-256
+            aes.IV = key.GetBytes(16);
+
+            using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
+            using (var ms = new MemoryStream())
+            using (var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(dataToEncrypt);
+                cs.Write(bytes, 0, bytes.Length);
+                cs.FlushFinalBlock();
+                return Convert.ToBase64String(ms.ToArray());
+            }
+        }
+    }
+}
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+sustituye el parámetro *dataToEncrypt* por el valor a encriptar o contraseña, *password* por "P@ssw0rd!Ex@mple" y *salt* por "s@ltV@lu3Ex@mple!".
 
-## Code scaffolding
+Al iniciar sesion se crea un token JWT el cual se comparte en las llamadas a la APIs como forma de autorización.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## ¡IMPORTANTE!
 
-```bash
-ng generate component component-name
-```
+Las APIs, al ser un proyecto .NET se ubico en otro repo, debes ir a descargarlo para que todo funcione, es decir, APIs y Sitio Web.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+El enlace al otro repo es: https://github.com/cdani11/SLN.PRUEBA.GYE

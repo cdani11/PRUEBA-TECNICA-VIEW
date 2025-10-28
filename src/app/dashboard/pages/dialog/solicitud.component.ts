@@ -8,9 +8,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { Component, OnInit } from '@angular/core';
-import { obtenerTiposCompra, obtenerEstados } from '../../interfaces';
+import { obtenerCategorias } from '../../interfaces';
 import { CommonModule } from '@angular/common';
-import { SolicitudesService } from '../../services/solicitudes.service';
+import { ProductoService } from '../../services/producto.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
@@ -37,29 +37,26 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 })
 export class AgregarSolicitudDialogComponent implements OnInit {
   form: FormGroup;
-  tiposCompra: { descripcion: string; valor: number }[] = [];
-  estados: { descripcion: string; valor: number }[] = [];
+  categorias: { descripcion: string; valor: number }[] = [];
   habilitarCargando: boolean = false;
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<AgregarSolicitudDialogComponent>,
-    private _solicitudesService: SolicitudesService,
+    private _productoService: ProductoService,
     private _snackBar: MatSnackBar,
   ) {
     this.form = this.fb.group({
       nombre: ['', Validators.required],
-      direccionSolicitante: ['', Validators.required],
       descripcion: ['', Validators.required],
-      fechaSolicitud: ['', Validators.required],
-      tipoCompra: [null, Validators.required],
-      estado: [null, Validators.required]
+      categoria: ['', Validators.required],
+      precio: [null, [Validators.required, Validators.min(0.01)]],
+      stock: [null, [Validators.required, Validators.min(1)]]
     });
   }
   ngOnInit(): void {
     setTimeout(() => {
-      this.estados = obtenerEstados();
-      this.tiposCompra = obtenerTiposCompra();
+      this.categorias = obtenerCategorias();
       this.setearDatosSolicitudes();
     });
   }
@@ -68,12 +65,12 @@ export class AgregarSolicitudDialogComponent implements OnInit {
     if (this.form.valid) {
       this.habilitarCargando = true;
       this.form.disable();
-      const { nombre, direccionSolicitante, descripcion, fechaSolicitud, tipoCompra, estado } = this.form.value;
+      const { nombre, descripcion, categoria, precio, stock } = this.form.value;
 
-      const solicitud = this._solicitudesService.solicitudSeleccionada!;
-      if (solicitud) {
-        const idSolicitud = solicitud.id;
-        this._solicitudesService.Actualizar(idSolicitud, nombre, direccionSolicitante, descripcion, fechaSolicitud, tipoCompra, estado)
+      const producto = this._productoService.productoSeleccionado!;
+      if (producto) {
+        const idProducto = producto.id;
+        this._productoService.Actualizar(idProducto, nombre, descripcion, categoria, null, precio, stock)
           .subscribe({
             next: (success) => {
               if (success) {
@@ -86,7 +83,7 @@ export class AgregarSolicitudDialogComponent implements OnInit {
               }
               this.dialogRef.close(true);
               this.form.reset();
-              this._solicitudesService.obtenerSolicitudes().subscribe();;
+              this._productoService.obtenerProductos().subscribe();
             },
             error: (err) => {
               this._snackBar.open(`Error: ${err}`, 'Cerrar', {
@@ -98,7 +95,7 @@ export class AgregarSolicitudDialogComponent implements OnInit {
             }
           });
       } else {
-        this._solicitudesService.registrarSolicitud(nombre, direccionSolicitante, descripcion, fechaSolicitud, tipoCompra, estado)
+        this._productoService.registrarProducto(nombre, descripcion, categoria, null, precio, stock)
           .subscribe({
             next: (success) => {
               if (success) {
@@ -111,7 +108,7 @@ export class AgregarSolicitudDialogComponent implements OnInit {
               }
               this.dialogRef.close(true);
               this.form.reset();
-              this._solicitudesService.obtenerSolicitudes().subscribe();
+              this._productoService.obtenerProductos().subscribe();
             },
             error: (err) => {
               this._snackBar.open(`Error: ${err}`, 'Cerrar', {
@@ -130,16 +127,16 @@ export class AgregarSolicitudDialogComponent implements OnInit {
   }
 
   setearDatosSolicitudes(): void {
-    const solicitud = this._solicitudesService.solicitudSeleccionada;
-    if (!solicitud) return;
+    const producto = this._productoService.productoSeleccionado;
+    if (!producto) return;
 
     this.form.patchValue({
-      nombre: solicitud.nombre!,
-      direccionSolicitante: solicitud.direccionSolicitante,
-      descripcion: solicitud.descripcion,
-      fechaSolicitud: solicitud.fechaEsperada,
-      tipoCompra: solicitud.tipoCompra,
-      estado: solicitud.estadoSolicitud
+      nombre: producto.nombre!,
+      descripcion: producto.descripcion,
+      categoria: producto.categoria,
+      //imagen: producto.imagen,
+      precio: producto.precio,
+      stock: producto.stock,
     });
   }
 }

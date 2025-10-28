@@ -11,8 +11,8 @@ import { DialogComponent } from '../../shared/page/dialog.component';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { AgregarSolicitudDialogComponent } from './dialog/solicitud.component';
-import { SolicitudesService } from '../services/solicitudes.service';
-import { EstadoDescripcion, EstadoSolicitud, Solicitud, TipoCompra, TipoCompraDescripcion } from '../interfaces';
+import { ProductoService } from '../services/producto.service';
+import { Producto, Categoria, CategoriaDescripcion } from '../interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
@@ -36,16 +36,16 @@ export default class dashboardPageComponent implements OnInit {
 
 
   mostrarLoadding: boolean = false;
-  dataSource: MatTableDataSource<Solicitud>;
+  dataSource: MatTableDataSource<Producto>;
 
   constructor(
     private _formBuilder: FormBuilder,
     private _router: Router,
     private _dialog: MatDialog,
-    private _solicitudesService: SolicitudesService,
+    private _productoService: ProductoService,
     private _snackBar: MatSnackBar,
   ) {
-    this.dataSource = new MatTableDataSource<Solicitud>();
+    this.dataSource = new MatTableDataSource<Producto>();
     console.log('llego al contructor del login');
 
     effect(async () => await this.effectGridProductos());
@@ -53,18 +53,17 @@ export default class dashboardPageComponent implements OnInit {
   }
 
   displayedColumns: string[] = [
-    'descripcion',
-    'estadoSolicitud',
     'nombre',
-    'direccionSolicitante',
-    'tipoCompra',
-    'fechaEsperada',
+    'descripcion',
+    'categoria',
+    'precio',
+    'stock',
     'acciones'
   ];
 
-  editar(row: Solicitud) {
+  editar(row: Producto) {
 
-    this._solicitudesService.seleccionarSolicitud(row);
+    this._productoService.seleccionarProducto(row);
     const dialogRef = this._dialog.open(AgregarSolicitudDialogComponent, {
       width: '500px'
     });
@@ -72,9 +71,9 @@ export default class dashboardPageComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => { });
   }
 
-  eliminar(row: Solicitud) {
+  eliminar(row: Producto) {
     this.mostrarLoadding = true;
-    this._solicitudesService.Eliminar(row.id)
+    this._productoService.Eliminar(row.id)
       .subscribe({
         next: (success) => {
           if (success) {
@@ -86,7 +85,7 @@ export default class dashboardPageComponent implements OnInit {
             });
           }
           this.mostrarLoadding = false;
-          this._solicitudesService.obtenerSolicitudes().subscribe();;
+          this._productoService.obtenerProductos().subscribe();
         },
         error: (err) => {
           this._snackBar.open(`Error: ${err}`, 'Cerrar', {
@@ -101,23 +100,17 @@ export default class dashboardPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._solicitudesService.obtenerSolicitudes().subscribe();
+    this._productoService.obtenerProductos().subscribe();
   }
 
   async effectGridProductos(): Promise<void> {
-    const productos = this._solicitudesService.todosLasSolicitudes();
+    const productos = this._productoService.todosLosProductos();
     if (!productos) return;
     this.dataSource.data = productos;
   }
 
-
-  obtenerEstadoDescripcion(data: EstadoSolicitud): string {
-    const datos = EstadoDescripcion[data];
-    return datos;
-  }
-
-  obtenerTipoCompraDescripcion(data: TipoCompra): string {
-    const datos = TipoCompraDescripcion[data];
+  obtenerCategoriaDescripcion(data: Categoria): string {
+    const datos = CategoriaDescripcion[data];
     return datos;
   }
 

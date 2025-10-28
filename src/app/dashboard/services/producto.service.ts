@@ -3,27 +3,27 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environments';
 import { AuthService } from '../../auth/services/auth.service';
-import { Solicitud, Solicitudes } from '../interfaces';
+import { Producto, Productos } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SolicitudesService {
+export class ProductoService {
   private readonly baseUrlAdmin: string = environment.baseUrlAdmin;
 
 
-  private _solicitudSeleccionada: Solicitud | null = null;
-  get solicitudSeleccionada() { return this._solicitudSeleccionada; }
+  private _productoSeleccionado: Producto | null = null;
+  get productoSeleccionado() { return this._productoSeleccionado; }
 
-  private _todosLasSolicitudes = signal<Solicitud[] | null>(null);
-  public todosLasSolicitudes = computed(() => this._todosLasSolicitudes());
+  private _todosLosProductos = signal<Producto[] | null>(null);
+  public todosLosProductos = computed(() => this._todosLosProductos());
 
   constructor(private _http: HttpClient, private _authService: AuthService) {
 
   }
 
 
-  obtenerSolicitudes(): Observable<void> {
+  obtenerProductos(): Observable<void> {
     const token = this._authService.currentUser()?.token;
     const usuario = this._authService.currentUser()?.usuario;
 
@@ -35,12 +35,12 @@ export class SolicitudesService {
       Authorization: `Bearer ${token}`
     });
 
-    const url = `${this.baseUrlAdmin}/ConsultarSolicitudesPorUsuario?Usuario=${usuario}`;
+    const url = `${this.baseUrlAdmin}`;
 
-    return this._http.get<Solicitudes>(url, { headers })
+    return this._http.get<Productos>(url, { headers })
       .pipe(
         map(({ result }) => {
-          this._todosLasSolicitudes.set(result);
+          this._todosLosProductos.set(result);
           return;
         }),
         catchError(err => {
@@ -51,9 +51,9 @@ export class SolicitudesService {
   }
 
 
-  Actualizar(id: number, nombre: string, direccionSolicitante: string,
-    descripcion: string, fechaSolucitud: string,
-    tipoCompra: number, estado: number): Observable<boolean> {
+  Actualizar(id: number, nombre: string, descripcion: string,
+    categoria: number, imagen: string | null,
+    precio: number, stock: number): Observable<boolean> {
 
     const token = this._authService.currentUser()?.token;
     const usuario = this._authService.currentUser()?.usuario;
@@ -69,15 +69,14 @@ export class SolicitudesService {
     const solicitud = {
       id,
       nombre,
-      direccionSolicitante,
       descripcion,
-      fechaSolucitud,
-      tipoCompra,
-      estado,
-      usuario
+      categoria,
+      imagen,
+      precio,
+      stock
     };
 
-    const url = `${this.baseUrlAdmin}/ActualizarSolicitudPorUsuario`;
+    const url = `${this.baseUrlAdmin}`;
 
     return this._http.put<boolean>(url, solicitud, { headers }).pipe(
       map((resp) => {
@@ -91,9 +90,9 @@ export class SolicitudesService {
   }
 
 
-  registrarSolicitud(nombre: string, direccionSolicitante: string,
-    descripcion: string, fechaSolucitud: string,
-    tipoCompra: number, estado: number): Observable<boolean> {
+  registrarProducto(nombre: string, descripcion: string,
+    categoria: number, imagen: string | null,
+    precio: number, stock: number): Observable<boolean> {
 
     const token = this._authService.currentUser()?.token;
     const usuario = this._authService.currentUser()?.usuario;
@@ -108,15 +107,14 @@ export class SolicitudesService {
 
     const solicitud = {
       nombre,
-      direccionSolicitante,
       descripcion,
-      fechaSolucitud,
-      tipoCompra,
-      estado,
-      usuario
+      categoria,
+      imagen,
+      precio,
+      stock
     };
 
-    const url = `${this.baseUrlAdmin}/RegistrarSolicitudPorUsuario`;
+    const url = `${this.baseUrlAdmin}`;
 
     return this._http.post<boolean>(url, solicitud, { headers }).pipe(
       map((resp) => {
@@ -129,8 +127,8 @@ export class SolicitudesService {
     );
   }
 
-  seleccionarSolicitud(solicitud: Solicitud): void {
-    this._solicitudSeleccionada = solicitud;
+  seleccionarProducto(producto: Producto): void {
+    this._productoSeleccionado = producto;
   }
 
   Eliminar(id: number): Observable<boolean> {
